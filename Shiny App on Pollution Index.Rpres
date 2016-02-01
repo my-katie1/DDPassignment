@@ -1,0 +1,62 @@
+Assignment: Course Project: Shiny Application and Reproducible Pitch
+
+Air Pollution Index (API) for major city in Malaysia
+========================================================
+author: Katie Lee
+date: 30 January 2016
+
+
+Introduction
+========================================================
+
+For this Shiny app project assignment, i have developed an app to display a graphical plot showing the air pollutant index (API) for major cities in Malaysia based on data available in the government website below:
+http://data.gov.my/
+
+The data is structured by city (i have only included 3 major cities for this project purpose) and the period of when the air pollutant index is tracked.
+
+Hence this app have 3 input selection for displaying the data by city, year and month. 
+
+R code for the Shiny app
+========================================================
+The ui page consist of 3 selection parameter with drop down list options. The output plot is based on ggplot for the selected city displaying the hourly API readings for the selected month.
+```{r}
+library(shiny)
+library(lubridate)
+library(ggplot2)
+Combined<-read.csv("API_combined.csv")
+
+ui<-fluidPage(
+  headerPanel("Major cities Air Pollutant Index 2013-2015"),
+  sidebarPanel(
+    selectInput("city",label="Select City", selected="Ipoh", 
+                choices=list("Ipoh","Penang","Petaling Jaya")),
+    selectInput("year",label="Select Year", selected=2013, choices=c(2013,
+                2014,2015)),
+    selectInput("month",label="Select Month", selected=8, 
+                choices=c(1,2,3,4,5,6,7,8,9,10,11,12))),
+  mainPanel(plotOutput("plot1")))
+server<-function(input, output){
+  output$plot1<-renderPlot({
+    #Show city = selected city, month = selected month, year = selected year
+    selecteddata <- Combined[Combined$City==input$city & month(Combined$Date)==input$month & year(Combined$Date)==input$year,]
+    ggplot(data=selecteddata,aes(x=selecteddata$Hour, y=selecteddata$API))+geom_smooth(color="red")+labs(x="Hour", y="API Reading")+theme(axis.title= element_text(size=18), axis.text = element_text(size = 14))+
+      ggtitle(paste("Air Pollutant Index for", input$city))+theme(plot.title = element_text(vjust = 0.2, hjust = 0.5, size = 24, color = "Blue", face="bold"))
+  })}
+```
+
+
+The output plot based on the selected parameters
+========================================================
+
+<iframe width="900" height="800" frameborder="0" scrolling="no" src="https://my-katie1.shinyapps.io/DDPassignment/"></iframe>
+
+
+Conclusion and links to the assignment
+========================================================
+The plot shows that at certain time in a day, consistently for the 3 major cities, the air pollutant index will be higher than normal hence it is advisable to avoid outdoor activities during these times.
+
+The published shiny app URL:    
+https://my-katie1.shinyapps.io/DDPassignment/
+
+Github link to ui.R and server.R files:
+https://github.com/my-katie1/DDPassignment
